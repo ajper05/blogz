@@ -1,0 +1,19 @@
+{% extends "base.html" %} 
+{% block content %}
+    <h1>User's Post History</h1>
+    <ul>
+        {% for post in userposts %}
+        <li>
+            <a href="./blog?id={{entry.id}}&owner_id={{post.owner_id}}">
+                <h1>{{post.title}}</h1>
+            </a>
+        </li>
+        <li>{{post.body}}</li>
+        
+        <br>
+        
+        <li> Posted By: {{entry.owner.username}}</li>
+        </hr>
+        {% endfor %}
+    </ul>
+    {% endblock %}

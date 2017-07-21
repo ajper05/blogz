@@ -1,0 +1,19 @@
+{% extends "base.html" %} 
+{% block content %}
+    <h1>Build a Blog</h1>
+
+        {% for post in posts %}
+        <li>
+            <a href="./blog?id={{post.id}}&owner_id={{post.owner_id}}">
+                <h2>{{post.title}}</h2>
+            </a>
+        </li>
+        <li>{{post.body}}</li>
+        
+        <li><i><a href="./blog?user={{post.owner_id}}"> Posted By: {{post.owner.username}}</a></i></li>
+        
+        </hr>
+        {% endfor %}
+    </ul>
+    {% endif %} 
+{% endblock %}
