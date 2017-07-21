@@ -4,7 +4,7 @@
     <ul>
         {% for post in userposts %}
         <li>
-            <a href="./blog?id={{entry.id}}&owner_id={{post.owner_id}}">
+            <a href="./blog?id={{post.id}}&owner_id={{post.owner_id}}">
                 <h1>{{post.title}}</h1>
             </a>
         </li>
@@ -12,7 +12,7 @@
         
         <br>
         
-        <li> Posted By: {{entry.owner.username}}</li>
+        <li> Posted By: {{post.owner.username}}</li>
         </hr>
         {% endfor %}
     </ul>

@@ -8,7 +8,6 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'F*4&8P9vmwJbmdtw'
 
-
 class Blog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -34,10 +33,11 @@ class User(db.Model):
         self.password = password
 
 
-@app.before_requests
+@app.before_request
 def require_login():
-    allowed_routes = ['signup', 'login', 'logout', 'index', 'blog']
+    allowed_routes = ['index', 'login', 'register']
     if request.endpoint not in allowed_routes and 'username' not in session:
+        flash("you are not logged in", "error")
         return redirect('/login')
 
 
@@ -56,9 +56,10 @@ def login():
         error = True
 
     if not error:
-        if username and username.password == password:
+         if existing_user and existing_user.password == password:
             session['username'] = username
             flash("You Have Been Logged in")
+            return redirect('/newpost')
 
     else:
         return render_template('login.html', pagetitle="Log In to Your Blog", password=password, username=username)
@@ -72,14 +73,13 @@ def register():
     username = request.form["username"]
     password = request.form["password"]
     verify = request.form["verify"]
-    users = User.query.all()
     existing_user = User.query.filter_by(username=username).first()
     error = False
     if len(username) < 3:
         flash("Username is too short or left blank", "error")
         error = True
 
-    if not existing_user:
+    if  existing_user:
         flash("That user already exists", "error")
         error = True
 
@@ -123,7 +123,7 @@ def blog():
         username = User.query.get(owner_id)
         userposts = Blog.query.filter_by(owner_id=owner_id)
 
-        return render_template('singlepost.html', pagetitle="Posts by" + username, user=username, userposts=userposts)
+        return render_template('singlepost.html', pagetitle="Posts by this user", user=username, userposts=userposts)
 
     return render_template('posts.html', pagetitle="build a blog", posts=posts)
 
@@ -144,10 +144,10 @@ def newpost():
         flash("Title cannot be greater than 255 characters long", "error")
         error = True
     if len(body) > 500:
-        flash("Post body cannot be greater than 500 characters in length")
+        flash("Post body cannot be greater than 500 characters in length", "error")
         error = True
     if len(body) <= 0:
-        flash("Post body cannot be left blank")
+        flash("Post body cannot be left blank", "error")
         error = True
 
     if not error:
@@ -155,14 +155,11 @@ def newpost():
             post_title = request.form["title"]
             post_body = request.form["body"]
             owner = User.query.filter_by(username=session['username']).first()
-            new_entry = Blog(post_title, post_body, owner)
-            db.session.add(new_entry)
+            new_post = Blog(post_title, post_body, owner)
+            db.session.add(new_post)
             db.session.commit()
 
-        return render_template('posts.html', pagetitle="build a blog", title=title, body=body, owner=owner)
-
-    else:
-        return render_template('newpost.html', pagetitle="build a blog", title=title,)
+        return redirect ('/blog')
 
 
 @app.route('/', methods=["POST", "GET"])
